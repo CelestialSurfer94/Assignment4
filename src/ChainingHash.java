@@ -3,13 +3,15 @@ public class ChainingHash {
 	private int tableSize;
 	private Node[] hashTable;
     private int curKey;
+    private Node tracker;
 		public ChainingHash(){
-			this(DEFAULT_SIZE);
+            this(DEFAULT_SIZE);
 		}
 		
 		public ChainingHash(int startSize){
 			tableSize = startSize;
             curKey = 0;
+            tracker = null; // might need to change later.
 			for(int i = 0; i < tableSize; i++){ //initializes nodes at each index.
 				hashTable[i] = new Node();
 			}
@@ -26,10 +28,22 @@ public class ChainingHash {
 			//You will need external tracking variables to account for this.
             for (int i = curKey; i < tableSize; i++){
                 Node curNode = hashTable[i];
-                if(curNode.keyword != null && curNode.next == null){
-                    return curNode.keyword;
+                if(curNode.keyword != null){ // a non null node exists.
+					if(curNode.next == null) { // a single node
+						curKey = i;
+						return curNode.keyword;
+					} else{ //need to track the node of the linked list, so after returning I can resume iteration.
+                        if(tracker == null){ //tracker not initialized.
+                            tracker = curNode;
+                        }
+                        if(tracker != null){ // tracker initialized. Need to return next node.
+                            tracker = tracker.next; //might get null pointer here. ^^
+                            return tracker.keyword;
+                        } // if this works like I want it will be null after it gets to the end of the list. Wont enter.
+					}
                 }
             }
+            return null;
 		}
 		/**
 		 * Adds the key to the hash table.
@@ -42,7 +56,7 @@ public class ChainingHash {
 			Node curNode = hashTable[hashVal];
 			if(curNode.keyword == null){ //empty linked list, no collision
 				curNode = new Node(keyToAdd);
-			} else if (curNode.keyword == keyToAdd) {//non empty linked list, no collision.
+			} else if (curNode.keyword.equals(keyToAdd)) {//non empty linked list, no collision.
 				curNode.count++;
 			} else { //collision.
 				Node temp = curNode.next;
@@ -54,7 +68,7 @@ public class ChainingHash {
 					}
 					temp = temp.next;
 				}
-				if(added == false) {
+				if(!added) {
 					temp = new Node(keyToAdd);
 				}
 			}
@@ -65,18 +79,18 @@ public class ChainingHash {
 		 * @return returns the number of times that key has been added.
 		 */
 		public int findCount(String keyToFind){
-			//TODO Implement findCount such that it returns the number of times keyToFind
 			int hashVal = hash(keyToFind);
 			Node curNode = hashTable[hashVal];
 			Node temp = curNode;
-			if(curNode.keyword == keyToFind){
+			if(curNode.keyword.equals(keyToFind)){ // first node is the target node.
 				return curNode.count;
-			} else {
+			} else { //target node somewhere in the linked list.
 				while (temp != null) {
-					if (temp.keyword == keyToFind) {
+					if (temp.keyword.equals(keyToFind)) {
 						return temp.count;
 					}
-				}
+                    temp = temp.next;
+				} //if not at first node and not in the linked list, doesn't exist.
 				return 0;
 			}
 		}
@@ -100,13 +114,16 @@ public class ChainingHash {
 
 		public Node(String keyword){
 			this.keyword = keyword;
-			this.count = 1;
-			next = null;
+            next = null;
+            if(this.keyword == null) {
+                this.count = 0;
+            } else {
+                this.count = 1;
+            }
 		}
 
-		public Node(){
+		public Node(){ //gonna fuck with this and see.
 			this(null);
-			this.count = 0;
 		}
 	}
 }
