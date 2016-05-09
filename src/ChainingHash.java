@@ -2,18 +2,15 @@ public class ChainingHash {
 	private static final int DEFAULT_SIZE = 10061;
 	private int tableSize;
 	private Node[] hashTable;
+    private int curKey;
 		public ChainingHash(){
-			//TODO Implement a default constructor for ChainingHash
-			//TOKALVIN! This implementation uses a list. Count would then be the
-			//the size of the list.
 			this(DEFAULT_SIZE);
 		}
 		
 		public ChainingHash(int startSize){
-			//TODO Implement a constructor that instantializes the hash array to startSize.
 			tableSize = startSize;
-
-			for(int i = 0; i < tableSize; i++){ //adds empty linked list to each index of table.
+            curKey = 0;
+			for(int i = 0; i < tableSize; i++){ //initializes nodes at each index.
 				hashTable[i] = new Node();
 			}
 		}
@@ -27,6 +24,12 @@ public class ChainingHash {
 		public String getNextKey(){
 			//TODO returns the next key in the hash table.
 			//You will need external tracking variables to account for this.
+            for (int i = curKey; i < tableSize; i++){
+                Node curNode = hashTable[i];
+                if(curNode.keyword != null && curNode.next == null){
+                    return curNode.keyword;
+                }
+            }
 		}
 		/**
 		 * Adds the key to the hash table.
@@ -64,7 +67,7 @@ public class ChainingHash {
 		public int findCount(String keyToFind){
 			//TODO Implement findCount such that it returns the number of times keyToFind
 			int hashVal = hash(keyToFind);
-			Node curNode = hasTable[hashVal];
+			Node curNode = hashTable[hashVal];
 			Node temp = curNode;
 			if(curNode.keyword == keyToFind){
 				return curNode.count;
@@ -81,7 +84,7 @@ public class ChainingHash {
 		private int hash(String keyToHash){
 			int hashVal = 0;
 			for(int i = 0; i < keyToHash.length(); i++){
-				hashVal = 37 * hashVal + key.charAt(i);
+				hashVal = 37 * hashVal + keyToHash.charAt(i);
 			}
 			hashVal %= tableSize;
 			if(hashVal < 0 ){
@@ -99,6 +102,11 @@ public class ChainingHash {
 			this.keyword = keyword;
 			this.count = 1;
 			next = null;
+		}
+
+		public Node(){
+			this(null);
+			this.count = 0;
 		}
 	}
 }
