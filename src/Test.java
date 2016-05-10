@@ -4,16 +4,22 @@ public class Test {
 	public static void main(String[] args) {
 		FileInput.init();
 		
-		ChainingHash test = new ChainingHash();
+		ChainingHash test = new ChainingHash(); //careful throws null pointer if calling findCount(a) at the end.
 		String[] words = FileInput.readShakespeare();
 		for(int i = 0; i < words.length; i++){
 			test.insert(words[i]);
 		}
         String a = test.getNextKey();
-        for(int i = 0; i < 100; i++){
-            System.out.println(a);
+        System.out.println(a);
+        System.out.println(test.findCount(a));
+        for(int i = 0; i < words.length; i++){
             a = test.getNextKey();
-			System.out.println(test.findCount(a));
+
+			if(a!= null) {
+                System.out.println(a);
+                System.out.println(test.findCount(a));
+			}
+
         }
 
 
