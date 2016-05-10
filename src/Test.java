@@ -4,22 +4,22 @@ public class Test {
 	public static void main(String[] args) {
 		FileInput.init();
 		
-		//TODO Initialize the hash tables
 		ChainingHash test = new ChainingHash();
-		String[] words = {"fuck","you","fuck"};
+		String[] words = FileInput.readShakespeare();
 		for(int i = 0; i < words.length; i++){
 			test.insert(words[i]);
 		}
         String a = test.getNextKey();
-        while(a!=null){
+        for(int i = 0; i < 100; i++){
             System.out.println(a);
             a = test.getNextKey();
+			System.out.println(test.findCount(a));
         }
 
-        System.out.println(Arrays.toString(words));
 
-		
-		//TODO Use the FileInput functions to read the two files.
+        //TODO Initialize the hash tables
+
+        //TODO Use the FileInput functions to read the two files.
 		// Input the elements of those two files into two hash tables,
 		// one file into a ChainingHash object and the other into a QPHash object.
 		

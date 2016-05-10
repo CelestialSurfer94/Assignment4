@@ -25,23 +25,28 @@ public class ChainingHash {
 		 * @return Returns the next element of the hash table. Returns null if it is at its end.
 		 */
 		public String getNextKey(){
-			//TODO returns the next key in the hash table.
-			//You will need external tracking variables to account for this.
+			//TODO this is wrong need to fix.
             for (int i = curKey; i < tableSize; i++){
                 Node curNode = hashTable[i];
                 if(curNode.keyword != null){ // a non null node exists.
 					if(curNode.next == null) { // a single node
-						curKey = i;
+						curKey = i+1;
 						return curNode.keyword;
-					} else{ //need to track the node of the linked list, so after returning I can resume iteration.
-                        if(tracker == null){ //tracker not initialized.
+					} else{ //multiple nodes... linked list.
+                        if(tracker == null){ //tracker not initialized
                             tracker = curNode;
+                            curKey = i;
                             return tracker.keyword;
                         }
                         if(tracker != null){ // tracker initialized. Need to return next node.
-                            tracker = tracker.next; //might get null pointer here. ^^
-                            return tracker.keyword;
-                        } // if this works like I want it will be null after it gets to the end of the list. Wont enter.
+							if(tracker.next == null){
+								tracker = null;
+								curKey++;
+							} else {
+								tracker = tracker.next; //might get null pointer here.
+								return tracker.keyword;
+							}
+                        }
 					}
                 }
             }
@@ -98,7 +103,7 @@ public class ChainingHash {
 		}
 
 		private int hash(String keyToHash){
-			/*int hashVal = 0;
+			int hashVal = 0;
 			for(int i = 0; i < keyToHash.length(); i++){
 				hashVal = 37 * hashVal + keyToHash.charAt(i);
 			}
@@ -107,8 +112,6 @@ public class ChainingHash {
 				hashVal += tableSize;
 			}
 			return hashVal;
-			*/
-            return 1;
 		}
 
 	public class Node {
@@ -126,8 +129,8 @@ public class ChainingHash {
             }
 		}
 
-		public Node(){ //gonna fuck with this and see.
-			this(null);
+		public Node(){
+            this(null);
 		}
 
         public void add(Node nodeToAdd){
