@@ -1,5 +1,5 @@
 public class QPHash {
-	private static final int DEFAULT_SIZE = 100000;
+	private static final int DEFAULT_SIZE = 10061;
     private String[] hashTable;
 		public QPHash(){
 			//TODO Implement a default constructor for QPHash
@@ -21,6 +21,7 @@ public class QPHash {
 		public String getNextKey(){
 			//TODO returns the next key in the hash table.
 			//You will need external tracking variables to account for this.
+			return null;
 		}
 		/**
 		 * Adds the key to the hash table.
@@ -40,6 +41,7 @@ public class QPHash {
 		public int findCount(String keyToFind){
 			//TODO Implement findCount such that it returns the number of times keyToFind
 			// has been added to the data structure.
+			return 0;
 		}
 
 		private int hash(String keyToHash){

@@ -12,6 +12,7 @@ public class ChainingHash {
 			tableSize = startSize;
             curKey = 0;
             tracker = null; // might need to change later.
+            hashTable = new Node[DEFAULT_SIZE];
 			for(int i = 0; i < tableSize; i++){ //initializes nodes at each index.
 				hashTable[i] = new Node();
 			}
@@ -35,6 +36,7 @@ public class ChainingHash {
 					} else{ //need to track the node of the linked list, so after returning I can resume iteration.
                         if(tracker == null){ //tracker not initialized.
                             tracker = curNode;
+                            return tracker.keyword;
                         }
                         if(tracker != null){ // tracker initialized. Need to return next node.
                             tracker = tracker.next; //might get null pointer here. ^^
@@ -55,11 +57,11 @@ public class ChainingHash {
 			int hashVal = hash(keyToAdd); // index of the array to add to linked list at that index.
 			Node curNode = hashTable[hashVal];
 			if(curNode.keyword == null){ //empty linked list, no collision
-				curNode = new Node(keyToAdd);
+                hashTable[hashVal] = new Node(keyToAdd);
 			} else if (curNode.keyword.equals(keyToAdd)) {//non empty linked list, no collision.
 				curNode.count++;
 			} else { //collision.
-				Node temp = curNode.next;
+				Node temp = curNode;
 				boolean added = false;
 				while(temp != null){
 					if(temp.keyword.equals(keyToAdd)){
@@ -69,7 +71,7 @@ public class ChainingHash {
 					temp = temp.next;
 				}
 				if(!added) {
-					temp = new Node(keyToAdd);
+					curNode.add(new Node(keyToAdd));
 				}
 			}
 		}
@@ -96,7 +98,7 @@ public class ChainingHash {
 		}
 
 		private int hash(String keyToHash){
-			int hashVal = 0;
+			/*int hashVal = 0;
 			for(int i = 0; i < keyToHash.length(); i++){
 				hashVal = 37 * hashVal + keyToHash.charAt(i);
 			}
@@ -105,6 +107,8 @@ public class ChainingHash {
 				hashVal += tableSize;
 			}
 			return hashVal;
+			*/
+            return 1;
 		}
 
 	public class Node {
@@ -125,5 +129,13 @@ public class ChainingHash {
 		public Node(){ //gonna fuck with this and see.
 			this(null);
 		}
+
+        public void add(Node nodeToAdd){
+            Node temp = this;
+            while(temp.next!= null){
+                temp = temp.next;
+            }
+            temp.next = nodeToAdd;
+        }
 	}
 }

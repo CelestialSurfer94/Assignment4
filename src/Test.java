@@ -1,9 +1,22 @@
+import java.util.*;
 public class Test {
 
 	public static void main(String[] args) {
 		FileInput.init();
 		
-		//TODO Initialize the hash tables 
+		//TODO Initialize the hash tables
+		ChainingHash test = new ChainingHash();
+		String[] words = {"fuck","you","fuck"};
+		for(int i = 0; i < words.length; i++){
+			test.insert(words[i]);
+		}
+        String a = test.getNextKey();
+        while(a!=null){
+            System.out.println(a);
+            a = test.getNextKey();
+        }
+
+        System.out.println(Arrays.toString(words));
 
 		
 		//TODO Use the FileInput functions to read the two files.
