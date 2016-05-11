@@ -4,6 +4,7 @@ public class ChainingHash {
 	private Node[] hashTable;
     private int curKey;
     private Node tracker;
+
 		public ChainingHash(){
             this(DEFAULT_SIZE);
 		}
@@ -25,7 +26,6 @@ public class ChainingHash {
 		 * @return Returns the next element of the hash table. Returns null if it is at its end.
 		 */
 		public String getNextKey(){
-			//TODO this is wrong need to fix.
             for (int i = curKey; i < tableSize; i++){
                 Node curNode = hashTable[i];
                 if(curNode.keyword != null){ // a non null node exists.
@@ -52,6 +52,7 @@ public class ChainingHash {
             }
             return null;
 		}
+
 		/**
 		 * Adds the key to the hash table.
 		 * If there is a collision, it should be dealt with by chaining the keys together.
@@ -60,7 +61,7 @@ public class ChainingHash {
 		 */
 		public void insert(String keyToAdd){
 			int hashVal = hash(keyToAdd); // index of the array to add to linked list at that index.
-			Node curNode = hashTable[hashVal];
+			Node curNode = hashTable[hashVal];;
 			if(curNode.keyword == null){ //empty linked list, no collision
                 hashTable[hashVal] = new Node(keyToAdd);
 			} else if (curNode.keyword.equals(keyToAdd)) {//non empty linked list, no collision.
@@ -89,17 +90,20 @@ public class ChainingHash {
 			int hashVal = hash(keyToFind);
 			Node curNode = hashTable[hashVal];
 			Node temp = curNode;
-			if(curNode.keyword.equals(keyToFind)){ // first node is the target node.
-				return curNode.count;
-			} else { //target node somewhere in the linked list.
-				while (temp != null) {
-					if (temp.keyword.equals(keyToFind)) {
-						return temp.count;
-					}
-                    temp = temp.next;
-				} //if not at first node and not in the linked list, doesn't exist.
-				return 0;
+			if(curNode.keyword != null) {
+				if (curNode.keyword.equals(keyToFind)) { // first node is the target node.
+					return curNode.count;
+				} else { //target node somewhere in the linked list.
+					while (temp != null) {
+						if (temp.keyword.equals(keyToFind)) {
+							return temp.count;
+						}
+						temp = temp.next;
+					} //if not at first node and not in the linked list, doesn't exist.
+					return 0;
+				}
 			}
+			return 0;
 		}
 
 		private int hash(String keyToHash){
@@ -114,15 +118,15 @@ public class ChainingHash {
 			return hashVal;
 		}
 
-	public class Node {
-		String keyword;
-		int count;
-		Node next;
+	private class Node {
+		public String keyword;
+		public int count;
+		public Node next;
 
 		public Node(String keyword){
 			this.keyword = keyword;
             next = null;
-            if(this.keyword == null) {
+            if(this.keyword == null) { //toDO fix this.
                 this.count = 0;
             } else {
                 this.count = 1;

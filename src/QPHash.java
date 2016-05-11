@@ -1,15 +1,19 @@
 public class QPHash {
 	private static final int DEFAULT_SIZE = 10061;
-    private String[] hashTable;
+    private Node hashTable[];
+	private int tableSize;
+	private int curProbe;
 		public QPHash(){
-			//TODO Implement a default constructor for QPHash
-            //gonna try a map implementation for this.
-            hashTable = new String[DEFAULT_SIZE];
+			this(DEFAULT_SIZE);
 		}
 		
 		public QPHash(int startSize){
-            hashTable = new String[startSize];
-			//TODO Implement a constructor that instantializes the hash array to startSize.
+            curProbe = 0;
+			tableSize = startSize;
+            hashTable = new Node[startSize];
+            for(int i = 0; i < startSize; i++){
+                hashTable[i] = new Node();
+            }
 		}
 
 		/**
@@ -19,9 +23,15 @@ public class QPHash {
 		 * @return Returns the next element of the hash table. Returns null if it is at its end.
 		 */
 		public String getNextKey(){
-			//TODO returns the next key in the hash table.
-			//You will need external tracking variables to account for this.
-			return null;
+			if(curProbe < tableSize){ //might need to be strictly less than tablesize.
+                String curKey = hashTable[curProbe].keyword;
+                curProbe++;
+                if(curKey != null) {
+                    return curKey;
+                }
+                return getNextKey();
+            }
+            return null;
 		}
 		/**
 		 * Adds the key to the hash table.
@@ -30,8 +40,12 @@ public class QPHash {
 		 * @param keyToAdd : the key which will be added to the hash table
 		 */
 		public void insert(String keyToAdd){
-			//TODO Implement insert into the hash table.
-			//If keyToAdd is already in the hash table, then increment its count.
+			int hashVal = hash(keyToAdd);
+            if(hashTable[hashVal].keyword == null) { //keyword not yet in table
+                hashTable[hashVal] = new Node(keyToAdd);
+            } else { //keyword exists in table already.
+                hashTable[hashVal].count++;
+            }
 		}
 		/**
 		 * Returns the number of times a key has been added to the hash table.
@@ -39,13 +53,54 @@ public class QPHash {
 		 * @return returns the number of times that key has been added.
 		 */
 		public int findCount(String keyToFind){
-			//TODO Implement findCount such that it returns the number of times keyToFind
-			// has been added to the data structure.
-			return 0;
+			int hashVal = hash(keyToFind);
+			if(hashTable[hashVal].keyword != null) {
+				if (hashTable[hashVal].keyword.equals(keyToFind)) {
+					return hashTable[hashVal].count;
+				}
+			}
+            return 0;
 		}
 
 		private int hash(String keyToHash){
-			return -1;
-			//EXTRA CREDIT: Implement your own String hash function here.
+            int hashVal = 0;
+			for(int i = 0; i < keyToHash.length(); i++){
+				hashVal = 37 * hashVal + keyToHash.charAt(i);
+			}
+			hashVal %= tableSize;
+			if(hashVal < 0 ){
+				hashVal += tableSize;
+			}
+			if(hashTable[hashVal].keyword == null){
+				hashVal = reHash(hashVal, 0);
+			}
+			return hashVal;
 		}
+
+		private int reHash(int curHash, int curProbe){ //might want to make curProbe a field.
+				int newHash = curHash + curProbe % tableSize;
+				Node curNode = hashTable[newHash];
+				if(curNode.keyword != null){
+					curProbe++;
+					newHash = reHash(curHash, curProbe * curProbe);
+				}
+			return newHash;
+		}
+
+
+	private class Node{
+		public int count;
+		public String keyword;
+
+		public Node(String keyToAdd){
+			keyword = keyToAdd;
+            count = 1;
+		}
+
+        public Node(){
+			keyword = null;
+            count = 0;
+
+        }
+	}
 }
