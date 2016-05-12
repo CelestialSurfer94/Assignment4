@@ -1,47 +1,29 @@
 import java.util.*;
 public class Test {
-    public static final String TESTSTRING = "doth";
+    public static final String TESTSTRING = "sure"; //doesnt work for doth?
 
-	public static void main(String[] args) {
-		FileInput.init();
+    public static void main(String[] args) {
+        FileInput.init();
 		
-		QPHash quad = new QPHash(); //careful throws null pointer if calling findCount(a) at the end.
+        QPHash quad = new QPHash(); //careful throws null pointer if calling findCount(a) at the end.
         ChainingHash chain = new ChainingHash();
-		String[] words = FileInput.readShakespeare();
-        int testcount = 0;
-		for(int i = 0; i < words.length; i++){
-			chain.insert(words[i]);
-            quad.insert(words[i]);
-            if(words[i].equalsIgnoreCase(TESTSTRING)){
-                testcount++;
-            }
-
-		}
-
-		int count1 = chain.findCount(TESTSTRING); //this is obviously wrong.
-        int count2 = quad.findCount(TESTSTRING);
-        String a = chain.getNextKey();
-        //String b = quad.getNextKey();
-
-        System.out.println(testcount);
-        System.out.println(count1);
-        System.out.println(count2);
-        /*
-        System.out.println(b);
-        System.out.println(quad.findCount(b));
-        for(int i = 0; i < words.length; i++){
-            a = chain.getNextKey();
-            b = quad.getNextKey();
-			if(b != null) {
-
-                System.out.println(b);
-                System.out.println(quad.findCount(b));
-
-			}
-
+        String[] hamlet = FileInput.readShakespeare();
+        String[] bacon = FileInput.readBacon();
+        for(int i = 0; i < bacon.length; i++){
+            quad.insert(bacon[i]);
         }
 
+        int countTest = 0;
+        for(int i = 0; i < bacon.length; i++){
+            String a = quad.getNextKey();
+            if(a!= null) {
+                System.out.println(a);
+                countTest++;
+            }
+        }
+        System.out.println(countTest);
 
+        //TODO consider finding a count of the null nodes to calculate load factor.
         //TODO Initialize the hash tables
 
         //TODO Use the FileInput functions to read the two files.
@@ -59,7 +41,7 @@ public class Test {
 		// to the total
 		
 		//TODO Print the total calculated squared error for the two tables and also the word with the highest distance.
-		*/
-	}
+
+    }
 
 }
