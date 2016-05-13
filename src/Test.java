@@ -1,47 +1,64 @@
+import com.sun.org.apache.xpath.internal.SourceTree;
+
+import java.sql.SQLOutput;
 import java.util.*;
 public class Test {
-    public static final String TESTSTRING = "sure"; //doesnt work for doth?
+    public static final String TESTSTRING = "doth"; //doesnt work for doth?
 
     public static void main(String[] args) {
         FileInput.init();
-		
-        QPHash quad = new QPHash(); //careful throws null pointer if calling findCount(a) at the end.
-        ChainingHash chain = new ChainingHash();
-        String[] hamlet = FileInput.readShakespeare();
-        String[] bacon = FileInput.readBacon();
-        for(int i = 0; i < bacon.length; i++){
-            quad.insert(bacon[i]);
+        QPHash hamlet = new QPHash(); //careful throws null pointer if calling findCount(a) at the end.
+        ChainingHash bacon = new ChainingHash();
+        ChainingHash hamletC = new ChainingHash();
+        QPHash baconQ = new QPHash();
+
+        String[] hamletWords = FileInput.readShakespeare();
+        String[] baconWords = FileInput.readBacon();
+        for(int i = 0; i < hamletWords.length; i++){
+            hamlet.insert(hamletWords[i]);
+            hamletC.insert(hamletWords[i]);
+
         }
 
-        int countTest = 0;
-        for(int i = 0; i < bacon.length; i++){
-            String a = quad.getNextKey();
-            if(a!= null) {
-                System.out.println(a);
-                countTest++;
+        for(int i = 0; i < baconWords.length; i++){ //adds to the chain
+            bacon.insert(baconWords[i]);
+            baconQ.insert(baconWords[i]);
+        }
+
+        double max = 0.0;
+        String greatestWord = null;
+        String hamletKey = hamlet.getNextKey();
+        double squareErr = 0.0;
+        while(hamletKey != null){ //checks hamKey vs Bacon Key.
+            double hamFreq = (double) hamlet.findCount(hamletKey)/ hamletWords.length;
+            double baconFreq = (double) bacon.findCount(hamletKey)/baconWords.length;
+            double difference = Math.abs(hamFreq - baconFreq);
+            if(difference > max){
+                greatestWord = hamletKey;
+                max = difference;
             }
+            squareErr += Math.pow(difference, 2);
+            hamletKey = hamlet.getNextKey();
+
         }
-        System.out.println(countTest);
+        System.out.println(squareErr);
 
-        //TODO consider finding a count of the null nodes to calculate load factor.
-        //TODO Initialize the hash tables
+        String baconKey = bacon.getNextKey();
+        while(baconKey != null){
+            double hamFreq =  (double) hamlet.findCount(baconKey)/hamletWords.length;
+            double baconFreq = (double) bacon.findCount(baconKey)/baconWords.length;
+            double difference = Math.abs(hamFreq - baconFreq);
+            if(hamFreq == 0){
+                squareErr += Math.pow(difference,2);
+            }
+            if(difference > max){
+                greatestWord = baconKey;
+                max = difference;
+            }
+            baconKey = bacon.getNextKey();
+        }
 
-        //TODO Use the FileInput functions to read the two files.
-		// Input the elements of those two files into two hash tables,
-		// one file into a ChainingHash object and the other into a QPHash object.
-		
-		
-		//TODO Initialize necessary variables for calculating the square error
-		// and most distant word.
-		
-		//TODO Iterate through the first hash table and add sum the squared error
-		// for these words.
-		
-		//TODO Find  words in the second hash table that are not in the first and add their squared error
-		// to the total
-		
-		//TODO Print the total calculated squared error for the two tables and also the word with the highest distance.
-
+        System.out.println(squareErr);
     }
 
 }

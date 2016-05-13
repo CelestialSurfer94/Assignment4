@@ -1,13 +1,15 @@
 public class QPHash {
-    private static final int DEFAULT_SIZE = 104717;
+    public static final int DEFAULT_SIZE = 48299;
     private Node hashTable[];
     private int tableSize;
     private int curProbe;
+    private int curKey;
     public QPHash(){
         this(DEFAULT_SIZE);
     }
 		
     public QPHash(int startSize){
+        curKey = 0;
         curProbe = 0;
         tableSize = startSize;
         hashTable = new Node[startSize];
@@ -20,16 +22,13 @@ public class QPHash {
      * @return Returns the next element of the hash table. Returns null if it is at its end.
      */
     public String getNextKey() {
-        if (curProbe < tableSize - 1) { //might need to be strictly less than tablesize.
-            curProbe++;
-            Node TEST = hashTable[curProbe];
-            if (TEST == null) {
-                return getNextKey();
-            } else {
-                return hashTable[curProbe].keyword;
+        for (int i = curKey; i < tableSize; i++){
+            if (hashTable[i] != null) {//non null node exists at that index;
+                curKey = i + 1;
+                return hashTable[i].keyword;
             }
         }
-        curProbe = 0;
+        curKey = 0;
         return null;
     }
     /**
@@ -53,29 +52,33 @@ public class QPHash {
      */
     public int findCount(String keyToFind){
         int hashVal = hash(keyToFind);
-        if(hashTable[hashVal].keyword != null) { //non null node exists.
-            if (hashTable[hashVal].keyword.equals(keyToFind)) {
-                return hashTable[hashVal].count;
-            }
+        if(hashTable[hashVal] != null && hashTable[hashVal].keyword.equals(keyToFind)) { //non null node exists.
+            return hashTable[hashVal].count;
         }
         return 0;
     }
 
     private int hash(String keyToHash){
-      int hashVal = 0;
+        int hashVal = 0;
         for(int i = 0; i < keyToHash.length(); i++){
             hashVal = 37 * hashVal + keyToHash.charAt(i);
         }
+
         hashVal %= tableSize;
         if(hashVal < 0 ){
             hashVal += tableSize;
         }
-        hashVal = (hashVal + curProbe * curProbe) %tableSize;
-        if(hashTable[hashVal]  != null){ //TODO MADE CHANGES HERE
-            if(!hashTable[hashVal].keyword.equals(keyToHash)){
-                curProbe++;
-                hashVal = hash(keyToHash);
-            }
+
+        hashVal = (hashVal + curProbe * curProbe) % tableSize;
+        if(hashTable[hashVal] == null){
+            curProbe = 0;
+            return hashVal;
+        } else if (hashTable[hashVal].keyword.equals(keyToHash)){
+            curProbe = 0;
+            return hashVal;
+        } else {
+            curProbe++;
+            hashVal = hash(keyToHash);
         }
         curProbe = 0;
         return hashVal;
@@ -89,12 +92,6 @@ public class QPHash {
         public Node(String keyToAdd){
             keyword = keyToAdd;
             count = 1;
-        }
-
-        public Node(){
-            keyword = null;
-            count = 0;
-
         }
     }
 }
