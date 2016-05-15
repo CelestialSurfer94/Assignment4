@@ -1,19 +1,19 @@
 public class ChainingHash {
-    public static final int DEFAULT_SIZE = 48299;
-    private int tableSize;
+    public static final int DEFAULT_SIZE = 29221;
     private Node[] hashTable;
     private int curIndex;
-    private Node tracker;
+    private Node listIndex;
+    public int numCollisions;
 
     public ChainingHash(){
         this(DEFAULT_SIZE);
     }
 		
     public ChainingHash(int startSize){
-        tableSize = startSize;
         curIndex = 0;
-        tracker = null;
-        hashTable = new Node[tableSize];
+        listIndex = null;
+        numCollisions = 0;
+        hashTable = new Node[startSize];
     }
 
     /**
@@ -23,31 +23,31 @@ public class ChainingHash {
      * @return Returns the next element of the hash table. Returns null if it is at its end.
      */
     public String getNextKey(){
-        for (int i = curIndex; i < tableSize; i++) {
+        for (int i = curIndex; i < hashTable.length; i++) {
             Node curNode = hashTable[i];
             if (curNode != null) { // a non null node exists at current node.
                 if (curNode.next == null) { // a single node
                     curIndex = i + 1;
                     return curNode.keyword;
                 } else { //multiple nodes... linked list.
-                    if (tracker == null) { //tracker not initialized
-                        tracker = curNode;
+                    if (listIndex == null) { // listIndex null means need to return the first node of the list.
+                        listIndex = curNode;
                         curIndex = i;
-                        return tracker.keyword;
-                    } else { // tracker initialized. Need to return next node in the list.
-                        if (tracker.next == null) { // tracker is on last node in the list.
-                            tracker = null;
+                        return listIndex.keyword;
+                    } else { // listIndex initialized. Need to return next node in the list.
+                        if (listIndex.next == null) { // listIndex is on last node in the list.
+                            listIndex = null;
                             curIndex = i + 1;
                         } else { // more nodes in the linked list exist.
-                            tracker = tracker.next;
-                            return tracker.keyword;
+                            listIndex = listIndex.next;
+                            return listIndex.keyword;
                         }
                     }
                 }
             }
         }
         curIndex = 0;
-        tracker = null;
+        listIndex = null;
         return null;
     }
 
@@ -58,26 +58,26 @@ public class ChainingHash {
      * @param keyToAdd : the key which will be added to the hash table
      */
     public void insert(String keyToAdd){
-        int hashVal = hash(keyToAdd); // index of the array to add to linked list at that index.
+        int hashVal = hash(keyToAdd);
         Node curNode = hashTable[hashVal];
-        if(curNode == null){ //empty linked list, no collision MADE CHANGE HERE WAS CURNODE.KEYWORD******
+        boolean added = false;
+        if(curNode == null){ //no collision
             hashTable[hashVal] = new Node(keyToAdd);
-        } else if (curNode.keyword.equals(keyToAdd)) {//non empty linked list, no collision.
-            curNode.count++;
-        } else { //collision. Somewhere in the linked list.
-            Node temp = curNode;
-            boolean added = false;
-            while(temp.next != null){ //iterates through linked list.
-                if(temp.next.keyword.equals(keyToAdd)){ //found the target node in the list.
-                    temp.next.count++;
+        } else{ //collision
+            while(curNode != null){
+                if(curNode.keyword.equals(keyToAdd)){
                     added = true;
+                    curNode.count++;
                 }
-                temp = temp.next;
+                listIndex = curNode;
+                curNode = curNode.next;
             }
-            if(!added){ // not in linked list, so append to the end of list.
-                temp.next = new Node(keyToAdd);
+            if(!added){ //needs to be added to end of the linked list
+                listIndex.next = new Node(keyToAdd);
+                numCollisions++;
             }
         }
+        listIndex = null;
     }
 
     /**
@@ -88,7 +88,7 @@ public class ChainingHash {
     public int findCount(String keyToFind){
         int hashVal = hash(keyToFind);
         Node curNode = hashTable[hashVal];
-        if(curNode  != null) {
+        if(curNode != null) {
             if (curNode.keyword.equals(keyToFind)) { // first node is the target node.
                 return curNode.count;
             } else { //target node somewhere in the linked list.
@@ -100,20 +100,35 @@ public class ChainingHash {
                 }
             }
         }
-        // no result return 0
         return 0;
     }
 
+    /**
+     * Hash function that returns the index in the array.
+     * @param keyToHash
+     * @return returns the hash value that the node key will be added to. Takes care of any
+     * collisions by chaining the nodes together, forming a linked list out of the collision nodes.
+     */
     private int hash(String keyToHash){
         int hashVal = 0;
         for(int i = 0; i < keyToHash.length(); i++){
-            hashVal = 37 * hashVal + keyToHash.charAt(i);
+            hashVal = 11 * hashVal + keyToHash.charAt(i) + 80 *keyToHash.length();
         }
-        hashVal %= tableSize;
+        hashVal %= hashTable.length;
         if(hashVal < 0 ){
-            hashVal += tableSize;
+            hashVal += hashTable.length;
         }
         return hashVal;
+    }
+
+    public double loadFactor(){
+        int count = 0;
+        for(int i = 0; i < hashTable.length; i++){
+            if(hashTable[i] != null){
+                count++;
+            }
+        }
+        return (double) count/hashTable.length;
     }
 
     private class Node {
