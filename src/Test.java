@@ -22,6 +22,12 @@ public class Test {
             bacon.insert(baconWords[i]);
         }
 
+        String baconTEST = bacon.getNextKey();
+        while(baconTEST != null){
+            System.out.println("baconTEST = " + baconTEST);
+            baconTEST = bacon.getNextKey();
+        }
+
         double max = 0.0; //current max frequency difference.
         String greatestWord = null; //greatest word difference by frequency
         double squareErr = 0.0; //total square error.

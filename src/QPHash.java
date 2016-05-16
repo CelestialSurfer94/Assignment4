@@ -66,7 +66,7 @@ public class QPHash {
     private int hash(String keyToHash){
         int hashVal = 0;
         for(int i = 0; i < keyToHash.length(); i++){
-            hashVal = 43 * hashVal + keyToHash.charAt(i);
+            hashVal = 11 * hashVal + keyToHash.charAt(i);
         }
 
         hashVal %= hashTable.length;

@@ -23,31 +23,26 @@ public class ChainingHash {
      * @return Returns the next element of the hash table. Returns null if it is at its end.
      */
     public String getNextKey(){
-        for (int i = curIndex; i < hashTable.length; i++) {
-            Node curNode = hashTable[i];
-            if (curNode != null) { // a non null node exists at current node.
-                if (curNode.next == null) { // a single node
-                    curIndex = i + 1;
-                    return curNode.keyword;
-                } else { //multiple nodes... linked list.
-                    if (listIndex == null) { // listIndex null means need to return the first node of the list.
-                        listIndex = curNode;
-                        curIndex = i;
-                        return listIndex.keyword;
-                    } else { // listIndex initialized. Need to return next node in the list.
-                        if (listIndex.next == null) { // listIndex is on last node in the list.
-                            listIndex = null;
-                            curIndex = i + 1;
-                        } else { // more nodes in the linked list exist.
-                            listIndex = listIndex.next;
-                            return listIndex.keyword;
-                        }
-                    }
+        for(int i = curIndex; i < hashTable.length; i++) {
+            if(hashTable[i] != null) {
+                curIndex = i;
+                if (hashTable[curIndex].next == null) { // a single node
+                    return hashTable[curIndex++].keyword;
+                }
+                if (listIndex == null) { // need to return first node in the list.
+                    listIndex = hashTable[curIndex];
+                    return listIndex.keyword;
+                }
+                if (listIndex.next == null){ // finished iterating through the list.
+                    listIndex = null;
+                    curIndex++;
+                } else {
+                    listIndex = listIndex.next;
+                    return listIndex.keyword;
                 }
             }
         }
         curIndex = 0;
-        listIndex = null;
         return null;
     }
 
@@ -112,7 +107,7 @@ public class ChainingHash {
     private int hash(String keyToHash){
         int hashVal = 0;
         for(int i = 0; i < keyToHash.length(); i++){
-            hashVal = 11 * hashVal + keyToHash.charAt(i) + 80 *keyToHash.length();
+            hashVal = 11 * hashVal + keyToHash.charAt(i);
         }
         hashVal %= hashTable.length;
         if(hashVal < 0 ){
