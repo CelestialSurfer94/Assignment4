@@ -1,14 +1,15 @@
 public class QPHash {
     public static final int DEFAULT_SIZE = 29221;
+    public static final int HASH_CONSTANT = 11;
     private Node hashTable[];
-    private int curKey;
+    private int tableIndex;
 
     public QPHash(){
         this(DEFAULT_SIZE);
     }
 
     public QPHash(int startSize){
-        curKey = 0;
+        tableIndex = 0;
         hashTable = new Node[startSize];
     }
 
@@ -19,13 +20,13 @@ public class QPHash {
      * @return Returns the next element of the hash table. Returns null if it is at its end.
      */
     public String getNextKey() {
-        for (int i = curKey; i < hashTable.length; i++){
+        for (int i = tableIndex; i < hashTable.length; i++){
             if (hashTable[i] != null) {//non null node exists at that index;
-                curKey = i + 1;
+                tableIndex = i + 1; //moves the index.
                 return hashTable[i].keyword;
             }
         }
-        curKey = 0;
+        tableIndex = 0;
         return null;
     }
     
@@ -51,10 +52,10 @@ public class QPHash {
      */
     public int findCount(String keyToFind){
         int hashVal = hash(keyToFind);
-        if(hashTable[hashVal] != null && hashTable[hashVal].keyword.equals(keyToFind)) { //non null node exists.
+        if(hashTable[hashVal] != null && hashTable[hashVal].keyword.equals(keyToFind)) {
             return hashTable[hashVal].count;
         }
-        return 0;
+        return 0; // does not exist in table, therefore count = 0.
     }
 
     /**
@@ -66,18 +67,18 @@ public class QPHash {
     private int hash(String keyToHash){
         int hashVal = 0;
         for(int i = 0; i < keyToHash.length(); i++){
-            hashVal = 11 * hashVal + keyToHash.charAt(i);
+            hashVal = HASH_CONSTANT * hashVal + keyToHash.charAt(i);
         }
 
         hashVal %= hashTable.length;
-        if(hashVal < 0 ){
+        if(hashVal < 0 ){ // adjusts hashVal to fit into indexes of the array.
             hashVal += hashTable.length;
         }
 
-        if(hashTable[hashVal] == null) {
+        if(hashTable[hashVal] == null) { // empty index in the table.
             return hashVal;
         }
-        return reHash(keyToHash, hashVal);
+        return reHash(keyToHash, hashVal); // need to probe if not empty.
     }
 
     /**
@@ -90,7 +91,7 @@ public class QPHash {
     private int reHash(String keyToHash, int hashVal){
         int numProbes = 1;
         while(hashTable[hashVal] != null){
-            if (hashTable[hashVal].keyword.equals(keyToHash)){
+            if (hashTable[hashVal].keyword.equals(keyToHash)){ //keyword already exists in table.
                 return hashVal;
             }
             hashVal = (hashVal + numProbes * numProbes) % hashTable.length;
@@ -98,17 +99,7 @@ public class QPHash {
         }
         return hashVal;
     }
-
-    public double loadFactor(){
-        int count = 0;
-        for(int i = 0; i < hashTable.length; i++){
-            if(hashTable[i] != null){
-                count++;
-            }
-        }
-        return (double) count/hashTable.length;
-    }
-
+    
     private class Node{
         public int count;
         public String keyword;

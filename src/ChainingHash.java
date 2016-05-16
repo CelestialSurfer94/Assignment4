@@ -1,18 +1,17 @@
 public class ChainingHash {
     public static final int DEFAULT_SIZE = 29221;
+    public static final int HASH_CONSTANT = 11;
     private Node[] hashTable;
-    private int curIndex;
-    private Node listIndex;
-    public int numCollisions;
+    private int tableIndex; // current index in the table.
+    private Node listIndex; // current index of the list within that index.
 
     public ChainingHash(){
         this(DEFAULT_SIZE);
     }
 		
     public ChainingHash(int startSize){
-        curIndex = 0;
+        tableIndex = 0;
         listIndex = null;
-        numCollisions = 0;
         hashTable = new Node[startSize];
     }
 
@@ -23,27 +22,27 @@ public class ChainingHash {
      * @return Returns the next element of the hash table. Returns null if it is at its end.
      */
     public String getNextKey(){
-        for(int i = curIndex; i < hashTable.length; i++) {
+        for(int i = tableIndex; i < hashTable.length; i++) {
             if(hashTable[i] != null) {
-                curIndex = i;
-                if (hashTable[curIndex].next == null) { // a single node
-                    return hashTable[curIndex++].keyword;
+                tableIndex = i;
+                if (hashTable[tableIndex].next == null) { // a single node
+                    return hashTable[tableIndex++].keyword;
                 }
                 if (listIndex == null) { // need to return first node in the list.
-                    listIndex = hashTable[curIndex];
+                    listIndex = hashTable[tableIndex];
                     return listIndex.keyword;
                 }
                 if (listIndex.next == null){ // finished iterating through the list.
                     listIndex = null;
-                    curIndex++;
-                } else {
+                    tableIndex++;
+                } else { //need to keep iterating, returning every value along the way. 
                     listIndex = listIndex.next;
                     return listIndex.keyword;
                 }
             }
         }
-        curIndex = 0;
-        return null;
+        tableIndex = 0; // resets tableIndex for another full traversal.
+        return null; // returns null when entire traversal complete.
     }
 
     /**
@@ -59,20 +58,19 @@ public class ChainingHash {
         if(curNode == null){ //no collision
             hashTable[hashVal] = new Node(keyToAdd);
         } else{ //collision
-            while(curNode != null){
-                if(curNode.keyword.equals(keyToAdd)){
+            while(curNode != null){ // iterates entire list.
+                if(curNode.keyword.equals(keyToAdd)){ //if in list add to its count.
                     added = true;
                     curNode.count++;
-                }
+                } // not at current index, keep traversing.
                 listIndex = curNode;
                 curNode = curNode.next;
             }
-            if(!added){ //needs to be added to end of the linked list
+            if(!added){ //needs to be added to end of the linked list since not in the list.
                 listIndex.next = new Node(keyToAdd);
-                numCollisions++;
             }
         }
-        listIndex = null;
+        listIndex = null; // resets listIndex.
     }
 
     /**
@@ -86,16 +84,16 @@ public class ChainingHash {
         if(curNode != null) {
             if (curNode.keyword.equals(keyToFind)) { // first node is the target node.
                 return curNode.count;
-            } else { //target node somewhere in the linked list.
-                while (curNode != null) {
-                    if (curNode.keyword.equals(keyToFind)) {
+            } else { //target possibly in the linked list.
+                while (curNode != null) { // iterates through the list.
+                    if (curNode.keyword.equals(keyToFind)) { //found the node.
                         return curNode.count;
                     }
                     curNode = curNode.next;
                 }
             }
         }
-        return 0;
+        return 0; // all other cases failed means not in list, count therefore 0.
     }
 
     /**
@@ -107,23 +105,13 @@ public class ChainingHash {
     private int hash(String keyToHash){
         int hashVal = 0;
         for(int i = 0; i < keyToHash.length(); i++){
-            hashVal = 11 * hashVal + keyToHash.charAt(i);
+            hashVal = HASH_CONSTANT * hashVal + keyToHash.charAt(i);
         }
         hashVal %= hashTable.length;
         if(hashVal < 0 ){
             hashVal += hashTable.length;
         }
         return hashVal;
-    }
-
-    public double loadFactor(){
-        int count = 0;
-        for(int i = 0; i < hashTable.length; i++){
-            if(hashTable[i] != null){
-                count++;
-            }
-        }
-        return (double) count/hashTable.length;
     }
 
     private class Node {

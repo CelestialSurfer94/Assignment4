@@ -22,12 +22,6 @@ public class Test {
             bacon.insert(baconWords[i]);
         }
 
-        String baconTEST = bacon.getNextKey();
-        while(baconTEST != null){
-            System.out.println("baconTEST = " + baconTEST);
-            baconTEST = bacon.getNextKey();
-        }
-
         double max = 0.0; //current max frequency difference.
         String greatestWord = null; //greatest word difference by frequency
         double squareErr = 0.0; //total square error.
@@ -54,16 +48,13 @@ public class Test {
             if(hamFreq == 0){ //found a word not common to both texts.
                 squareErr += Math.pow(difference,2); //add to total square error.
             }
-            if(difference > max){ // reassigning of greatest word if necassary. 
+            if(difference > max){ // reassigning of greatest word if necessary.
                 greatestWord = baconKey;
                 max = difference;
             }
             baconKey = bacon.getNextKey();
         }
 
-        System.out.println("bacon number of collisions: " + bacon.numCollisions);
-        System.out.println("ham load factor:            " + hamlet.loadFactor());
-        System.out.println("bacon load factor:          " + bacon.loadFactor());
         System.out.println("total square error:         " +squareErr);
         System.out.println("greatest word:              " +greatestWord);
     }
